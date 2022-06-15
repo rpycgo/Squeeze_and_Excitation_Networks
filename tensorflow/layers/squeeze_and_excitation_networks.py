@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.layers import Layer, GlobalAveragePooling1D, Dense
 
 
@@ -11,4 +12,7 @@ class SqueezeAndExcitationNetworks(Layer):
         fc1 = Dense(units=(x.shape[-1] // self.reduction_ratio), activation='relu')(average_pooling)
         fc2 = Dense(units=(x.shape[-1]), activation='sigmoid')(fc1)
 
-        return x * fc2
+        fc2_repeated = tf.repeat(fc2, repeats=x.shape[1], axis=0)
+        fc2_for_multiply = tf.reshape(fc2_repeated, shape=(-1, *x.shape[1:]))
+
+        return x * fc2_for_multiply
